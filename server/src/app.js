@@ -1,4 +1,5 @@
 import express from "express";
+import { authRouter } from "./auth/auth.routes.js";
 import { spotsRouter } from "./spots/spots.routes.js";
 import { reviewsRouter } from "./reviews/reviews.routes.js";
 import { errorHandler } from "./middleware/error-handler.js";
@@ -7,6 +8,7 @@ export const app = express();
 
 app.use(express.json());
 
+app.use("/auth", authRouter);
 app.use("/spots", spotsRouter);
 app.use("/spots/:spotId/reviews", reviewsRouter);
 
