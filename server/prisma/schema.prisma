@@ -15,6 +15,7 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
   spots        Spot[]
+  reviews      Review[]
 }
 
 enum Category {
@@ -38,4 +39,22 @@ model Spot {
   createdById   Int
   createdBy     User     @relation(fields: [createdById], references: [id])
   createdAt     DateTime @default(now())
+  reviews       Review[]
+}
+
+/// rating must be 1-5: enforced by a CHECK constraint added by hand in the add_reviews migration
+/// (Prisma's schema can't express CHECK constraints).
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  comment   String?
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  spotId    Int
+  spot      Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, spotId])
+  @@index([spotId])
 }
