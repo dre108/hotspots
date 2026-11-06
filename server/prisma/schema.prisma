@@ -14,4 +14,28 @@ model User {
   username     String   @unique
   passwordHash String
   createdAt    DateTime @default(now())
+  spots        Spot[]
+}
+
+enum Category {
+  Restaurant
+  Cafe
+  Bar
+  Park
+  Shop
+  Entertainment
+  Other
+}
+
+model Spot {
+  id            Int      @id @default(autoincrement())
+  name          String
+  category      Category
+  address       String
+  latitude      Float?
+  longitude     Float?
+  googlePlaceId String?  @unique
+  createdById   Int
+  createdBy     User     @relation(fields: [createdById], references: [id])
+  createdAt     DateTime @default(now())
 }
