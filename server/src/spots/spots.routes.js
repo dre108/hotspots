@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../db.js";
+import { parseId } from "../ids.js";
 
 export const spotsRouter = Router();
 
@@ -16,17 +17,6 @@ const SPOT_FIELDS = {
     createdAt: true,
     createdBy: { select: { id: true, username: true } },
 };
-
-// Postgres INTEGER tops out at 2,147,483,647. Anything bigger would make
-// Prisma throw, so it's rejected here as a bad id instead.
-const MAX_ID = 2147483647;
-
-function parseId(value) {
-    if (!/^\d+$/.test(value)) return null;
-    const id = Number(value);
-    if (id < 1 || id > MAX_ID) return null;
-    return id;
-}
 
 spotsRouter.get("/", async (req, res) => {
     const spots = await prisma.spot.findMany({

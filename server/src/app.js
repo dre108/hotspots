@@ -1,11 +1,13 @@
 import express from "express";
 import { spotsRouter } from "./spots/spots.routes.js";
+import { reviewsRouter } from "./reviews/reviews.routes.js";
 
 export const app = express();
 
 app.use(express.json());
 
 app.use("/spots", spotsRouter);
+app.use("/spots/:spotId/reviews", reviewsRouter);
 
 app.get("/health", (req, res) => {
     res.json({ status: "ok"});
