@@ -46,3 +46,25 @@ export function validateSignup(body) {
 
     return { errors, data: { email: cleanEmail, username: cleanUsername, password } };
 }
+
+// Login only checks that both fields are there. No format or length rules:
+// a wrong email or password just fails to match, and "too short" would hint
+// at the password policy.
+export function validateLogin(body) {
+    const errors = {};
+    const { email, password } = body ?? {};
+
+    let cleanEmail;
+    if (typeof email !== "string" || email.trim() === "") {
+        errors.email = "Email is required.";
+    } else {
+        // Same cleanup as signup, so "Dre@X.com " finds dre@x.com.
+        cleanEmail = email.trim().toLowerCase();
+    }
+
+    if (typeof password !== "string" || password === "") {
+        errors.password = "Password is required.";
+    }
+
+    return { errors, data: { email: cleanEmail, password } };
+}
