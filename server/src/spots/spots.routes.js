@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { prisma } from "../db.js";
 import { parseId } from "../ids.js";
+import { requireAuth } from "../middleware/require-auth.js";
+import { validateSpot } from "./spots.validation.js";
 
 export const spotsRouter = Router();
 
@@ -25,6 +27,23 @@ spotsRouter.get("/", async (req, res) => {
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     });
     res.json(spots);
+});
+
+// Signed-in users only: requireAuth answers 401 before this code runs.
+spotsRouter.post("/", requireAuth, async (req, res) => {
+    const { errors, data } = validateSpot(req.body);
+    if (Object.keys(errors).length > 0) {
+        return res.status(400).json({ errors });
+    }
+
+    const spot = await prisma.spot.create({
+        // The creator comes from the verified token, never from the request body.
+        data: { ...data, createdById: req.user.id },
+        select: SPOT_FIELDS,
+    });
+
+    // RFC 9110 section 15.3.2: a 201 names the new resource in the Location header.
+    res.status(201).location(`/spots/${spot.id}`).json(spot);
 });
 
 spotsRouter.get("/:id", async (req, res) => {
